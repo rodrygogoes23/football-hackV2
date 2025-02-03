@@ -13,7 +13,7 @@ app = Client(
     session_string=os.getenv("SESSION")
 )
 
-@app.on_message(filters.photo & filters.user([7828242164]))
+@app.on_message(filters.photo & filters.user([7522153272]))
 async def hacke(c: Client, m: Message):
     try:
         if m.caption and "/hunt" in m.caption:
