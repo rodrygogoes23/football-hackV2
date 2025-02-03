@@ -16,7 +16,7 @@ app = Client(
 @app.on_message(filters.photo & filters.user([7522153272]))
 async def hacke(c: Client, m: Message):
     try:
-        if m.caption and "/hunt" in m.caption:
+        if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:
             file_data = db.get(f"{m.photo.file_unique_id}")
             await m.reply(f"/hunt {file_data['name']}")
             return
