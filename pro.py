@@ -3,7 +3,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from Mukund import Mukund
 
-storage = Mukund("MukundX")
+storage = Mukund("Vegeta")
 db = storage.database("marvel")
 
 app = Client(
