@@ -1,9 +1,16 @@
 import os
 import threading
+import logging
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from Mukund import Mukund
 from flask import Flask
+
+# Configure Logging
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
 
 # Create Flask app for health check
 web_app = Flask(__name__)
@@ -31,16 +38,20 @@ bot = Client(
 async def hacke(c: Client, m: Message):
     try:
         if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:
+            logging.info(f"Detected message with caption: {m.caption}")  # ✅ Log detected message
             file_data = db.get(f"{m.photo.file_unique_id}")
+
             if file_data:
-                await m.reply(f"/hunt {file_data['name']}")
+                logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
+                await m.reply(f"/collect {file_data['name']}")
             else:
+                logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
                 await m.reply("Image not found in database!")
-            return
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error processing message: {e}")
 
 # Start both Flask and Pyrogram using threading
 if __name__ == "__main__":
+    logging.info("Starting Flask server and Pyrogram bot...")
     threading.Thread(target=run_flask, daemon=True).start()
     bot.run()
