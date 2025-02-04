@@ -24,7 +24,7 @@ def run_flask():
 
 # Initialize Mukund database
 storage = Mukund("Vegeta")
-db = storage.database("marvel")
+db = storage.database("cric")
 
 # Initialize Pyrogram bot
 bot = Client(
