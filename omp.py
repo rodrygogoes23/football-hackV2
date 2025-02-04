@@ -1,6 +1,6 @@
 import os
 from pyrogram import Client, filters
-from flask import flask
+from Flask import flask
 
 web_app = Flask(__name__)
 
