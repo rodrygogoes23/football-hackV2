@@ -1,1 +1,1 @@
-web: python omp.py
+web: python pro.py
