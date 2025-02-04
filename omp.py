@@ -1,5 +1,15 @@
 import os
 from pyrogram import Client, filters
+from flask import flask
+
+web_app = Flask(__name__)
+
+@web_app.route('/health')
+def health_check():
+    return "OK", 200
+
+def run_flask():
+    web_app.run(host="0.0.0.0", port=8000)
 
 # Set up API credentials
 API_ID = int(os.getenv("API_ID", "0"))  
