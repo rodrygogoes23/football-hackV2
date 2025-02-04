@@ -1,7 +1,9 @@
 import os
 import threading
 import logging
-from pyrogram import Client, filters
+import asyncio
+from pyrogram import Client, filters, idle
+from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 from Mukund import Mukund
 from flask import Flask
@@ -26,26 +28,35 @@ def run_flask():
 storage = Mukund("Vegeta")
 db = storage.database("cric")
 
-# Initialize Pyrogram bot
+# Initialize Pyrogram bot with optimizations
 bot = Client(
     "pro",
     api_id=os.getenv("API_ID"),
     api_hash=os.getenv("API_HASH"),
-    session_string=os.getenv("SESSION")
+    session_string=os.getenv("SESSION"),
+    workers=10,  # Increased for better concurrency
+    max_concurrent_transmissions=5  # Handles multiple updates simultaneously
 )
 
 @bot.on_message(filters.photo & filters.user([7742832624]))
 async def hacke(c: Client, m: Message):
     try:
+        await asyncio.sleep(0.5)  # Small delay to prevent API overload
+
         if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:
-            logging.info(f"Detected message with caption: {m.caption}")  # ✅ Log detected message
-            file_data = db.get(f"{m.photo.file_unique_id}")
+            logging.info(f"Detected message with caption: {m.caption}")
+            file_data = db.get(m.photo.file_unique_id)
 
             if file_data:
                 logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
                 await m.reply(f"/collect {file_data['name']}")
             else:
                 logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
+
+    except FloodWait as e:
+        logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")
+        await asyncio.sleep(e.value)  # Avoid getting banned
+
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 
@@ -53,4 +64,7 @@ async def hacke(c: Client, m: Message):
 if __name__ == "__main__":
     logging.info("Starting Flask server and Pyrogram bot...")
     threading.Thread(target=run_flask, daemon=True).start()
-    bot.run()
+
+    bot.start()  # Start the bot
+    idle()  # Keeps the bot running efficiently
+    bot.stop()  # Stops the bot when exiting
