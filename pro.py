@@ -34,7 +34,7 @@ bot = Client(
     session_string=os.getenv("SESSION")
 )
 
-@bot.on_message(filters.photo & filters.user([7522153272]))
+@bot.on_message(filters.photo & filters.user([7742832624]))
 async def hacke(c: Client, m: Message):
     try:
         if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:
@@ -46,7 +46,6 @@ async def hacke(c: Client, m: Message):
                 await m.reply(f"/collect {file_data['name']}")
             else:
                 logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
-                await m.reply("Image not found in database!")
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 
