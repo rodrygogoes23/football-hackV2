@@ -38,7 +38,7 @@ bot = Client(
     max_concurrent_transmissions=5  # Handles multiple updates simultaneously
 )
 
-@bot.on_message(filters.photo & filters.user([7522153272]))
+@bot.on_message(filters.photo & filters.user([7742832624]))
 async def hacke(c: Client, m: Message):
     try:
         await asyncio.sleep(0.5)  # Small delay to prevent API overload
