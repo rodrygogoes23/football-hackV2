@@ -41,9 +41,17 @@ bot = Client(
 
 
 
+# Define restricted group IDs
+restricted_groups = [-1002173442670]  # Replace with actual group IDs
+
 @bot.on_message(filters.photo & filters.user([7522153272, 7946198415]))
 async def hacke(c: Client, m: Message):
     try:
+        # Check if the message is from a restricted group
+        if m.chat.id in restricted_groups:
+            logging.info(f"Ignoring message from restricted group: {m.chat.id}")
+            return
+
         await asyncio.sleep(random.uniform(0.5, 1.0))  # Small delay
 
         if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:
