@@ -41,7 +41,7 @@ bot = Client(
 
 
 
-@bot.on_message(filters.photo & filters.user([7946198415, 7522153272]))
+@bot.on_message(filters.photo & filters.user([7742832624]))
 async def hacke(c: Client, m: Message):
     try:
         await asyncio.sleep(random.uniform(0.5, 1.0))  # Small delay
