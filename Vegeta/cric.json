@@ -64,6 +64,9 @@
   "AgADNrcxG6bH5FA": { "name": "Ricky" },
   "AgADP7cxG87xrVA": { "name": "Sachin" },
   "AgADgrcxG0NbpVA": { "name": "Warner" },
+  "AgADHbYxGyTZvVA": { "name": "Chennai" },
+  "AgAD57UxG7h3PVM": { "name": "Team" },
+  "AgADE7cxG0kvNVI": { "name": "Virat" },
   "AgAD9bYxG4DdHFM": { "name": "Messi" },
   "AgADLLcxG6dcFVM": { "name": "Messi" },
   "AgAD7bYxGzMv3FM": { "name": "Neymar" },
@@ -71,7 +74,7 @@
   "AgAD-rYxG84V1VA": { "name": "Putellas" },
   "AgADiLYxG0Jp3VI": { "name": "Ronaldo" },
   "AgADIrcxG6NszVI": { "name": "Messi" },
-  "AgADkLYxG_LrzFI": { "name": "Ronaldo" },
+  "AgADnLcxGzOL1FA": { "name": "Bale" },
   "AgADg7YxG4bqBFM": { "name": "Messi" },
   "AgAD3bYxGwVBBFM": { "name": "Muller" },
   "AgADiLYxGw2U1VI": { "name": "Messi" },
@@ -97,5 +100,12 @@
   "AgADNrcxG3W_tFM": { "name": "Platini" },
   "AgADNrcxGx7xvVM": { "name": "Gerd" },
   "AgAD_7YxG7R-5VI": { "name": "Franz" },
-  "AgAD_7YxG7R-5VI": { "name": "Alexia" }
+  "AgADGLcxG5Do5VA": { "name": "Alexia" },
+  "AgAD_7YxG7R-5VI": { "name": "Franz" },
+  "AgADlrcxG3ThHVE": { "name": "Messi" },
+  "AgADa7YxG2oG1VA": { "name": "Carlo" },
+  "AgADhbcxG7yz3VA": { "name": "Morgan" },
+  "AgAD4bYxG3Q_DVA": { "name": "Xavi" },
+  "AgADLbcxG0D_PFA": { "name": "Zidane" },
+  "AgADx7YxG07xJFA": { "name": "Maldini" }
 }
