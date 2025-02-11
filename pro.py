@@ -44,7 +44,7 @@ bot = Client(
 # Define restricted group IDs
 restricted_groups = [-1002173442670]  # Replace with actual group IDs
 
-@bot.on_message(filters.photo & filters.user([7522153272, 7946198415]))
+@bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624]))
 async def hacke(c: Client, m: Message):
     try:
         # Check if the message is from a restricted group
