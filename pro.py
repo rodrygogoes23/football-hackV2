@@ -8,7 +8,6 @@ from pyrogram.types import Message
 from Mukund import Mukund
 from flask import Flask
 import random
-
 # Configure Logging
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -97,5 +96,7 @@ async def main():
     await asyncio.gather(run_flask(), idle())
     await bot.stop()
 
+# Proper event loop handling (Fixes the error)
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
