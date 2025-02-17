@@ -36,8 +36,7 @@ bot = Client(
     api_hash=os.getenv("API_HASH"),
     session_string=os.getenv("SESSION"),
     workers=10,
-    max_concurrent_transmissions=5,
-    fetch_missing_updates=True  # Ensures missing updates are fetched
+    max_concurrent_transmissions=5
 )
 
 
