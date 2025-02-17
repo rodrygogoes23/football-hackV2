@@ -66,7 +66,7 @@ async def hacke(c: Client, m: Message):
 
         await asyncio.sleep(random.uniform(0.5, 1.0))  # Small delay  
 
-        if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:  
+        if m.caption and "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:  
             logging.info(f"Detected message with caption: {m.caption}")  
             file_data = db.get(m.photo.file_unique_id)  
 
