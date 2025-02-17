@@ -35,10 +35,10 @@ bot = Client(
     api_id=os.getenv("API_ID"),
     api_hash=os.getenv("API_HASH"),
     session_string=os.getenv("SESSION"),
-    workers=10,  # Increased for better concurrency
-    max_concurrent_transmissions=5  # Handles multiple updates simultaneously
+    workers=10,
+    max_concurrent_transmissions=5,
+    fetch_missing_updates=True  # Ensures missing updates are fetched
 )
-
 
 
 # Define restricted group IDs
@@ -89,10 +89,12 @@ async def hacke(c: Client, m: Message):
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 # Start both Flask and Pyrogram using threading
+async def main():
+    await bot.start()
+    await idle()
+    await bot.stop()
+
 if __name__ == "__main__":
     logging.info("Starting Flask server and Pyrogram bot...")
     threading.Thread(target=run_flask, daemon=True).start()
-
-    bot.start()  # Start the bot
-    idle()  # Keeps the bot running efficiently
-    bot.stop()  # Stops the bot when exiting
+    asyncio.run(main())
