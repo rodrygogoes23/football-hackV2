@@ -42,7 +42,7 @@ bot = Client(
 
 
 # Define restricted group IDs
-restricted_groups = [-1002173442670]  # Replace with actual group IDs
+restricted_groups = [-1002173442670, -1002395952299]  # Replace with actual group IDs
 
 @bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624]))
 async def hacke(c: Client, m: Message):
