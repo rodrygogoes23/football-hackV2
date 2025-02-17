@@ -1,11 +1,9 @@
 import os
-import threading
 import logging
 import asyncio
 from pyrogram import Client, filters, idle
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
-from Mukund import Mukund
 from flask import Flask
 import random
 
@@ -22,23 +20,33 @@ web_app = Flask(__name__)
 def health_check():
     return "OK", 200
 
-def run_flask():
-    web_app.run(host="0.0.0.0", port=8000)
+async def run_flask():
+    """ Runs Flask server for health checks """
+    from hypercorn.asyncio import serve
+    from hypercorn.config import Config
 
-# Initialize Mukund database
-storage = Mukund("Vegeta")
-db = storage.database("cric")
+    config = Config()
+    config.bind = ["0.0.0.0:8000"]
+    await serve(web_app, config)
 
-# Initialize Pyrogram bot with optimizations
+# Ensure required environment variables exist
+API_ID = os.getenv("API_ID")
+API_HASH = os.getenv("API_HASH")
+SESSION_STRING = os.getenv("SESSION")
+
+assert API_ID is not None, "Missing API_ID in environment variables!"
+assert API_HASH is not None, "Missing API_HASH in environment variables!"
+assert SESSION_STRING is not None, "Missing SESSION in environment variables!"
+
+# Initialize Pyrogram bot
 bot = Client(
     "pro",
-    api_id=os.getenv("API_ID"),
-    api_hash=os.getenv("API_HASH"),
-    session_string=os.getenv("SESSION"),
+    api_id=int(API_ID),
+    api_hash=API_HASH,
+    session_string=SESSION_STRING,
     workers=10,
     max_concurrent_transmissions=5
 )
-
 
 # Define restricted group IDs
 restricted_groups = [-1002173442670]  # Replace with actual group IDs
@@ -46,7 +54,7 @@ restricted_groups = [-1002173442670]  # Replace with actual group IDs
 @bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624]))
 async def hacke(c: Client, m: Message):
     try:
-        # Check if the message is from a restricted group
+        # Ignore messages from restricted groups
         if m.chat.id in restricted_groups:
             logging.info(f"Ignoring message from restricted group: {m.chat.id}")
             return
@@ -55,31 +63,23 @@ async def hacke(c: Client, m: Message):
 
         if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:
             logging.info(f"Detected message with caption: {m.caption}")
-            file_data = db.get(m.photo.file_unique_id)
 
-            if file_data:
-                logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
+            # Send /collect command
+            await m.reply(f"/collect {m.photo.file_unique_id}")
 
-                # Send /collect command
-                await m.reply(f"/collect {file_data['name']}")
+            # Wait a bit before sending reaction message
+            await asyncio.sleep(random.uniform(2.0, 4.0))  
 
-                # Wait a bit before sending reaction message
-                await asyncio.sleep(random.uniform(2.0, 4.0))  
-
-                # Fun messages after collecting
-                fun_responses = [
-                    "Camping ke fayde ",
-                    "Successfully chori kr liya",
-                    "OP",
-                    "OP bhai OP ",
-                    "Hell yeah! ",
-                    "Fuck yeah! "
-                ]
-                fun_response = random.choice(fun_responses)
-                await m.reply(fun_response)
-
-            else:
-                logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
+            # Fun responses
+            fun_responses = [
+                "Camping ke fayde ",
+                "Successfully chori kr liya",
+                "OP",
+                "OP bhai OP ",
+                "Hell yeah! ",
+                "Fuck yeah! "
+            ]
+            await m.reply(random.choice(fun_responses))
 
     except FloodWait as e:
         logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")
@@ -87,13 +87,13 @@ async def hacke(c: Client, m: Message):
 
     except Exception as e:
         logging.error(f"Error processing message: {e}")
-# Start both Flask and Pyrogram using threading
+
 async def main():
+    """ Runs Pyrogram bot and Flask server concurrently """
     await bot.start()
-    await idle()
+    logging.info("Bot started successfully!")
+    await asyncio.gather(run_flask(), idle())
     await bot.stop()
 
 if __name__ == "__main__":
-    logging.info("Starting Flask server and Pyrogram bot...")
-    threading.Thread(target=run_flask, daemon=True).start()
     asyncio.run(main())
