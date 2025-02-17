@@ -8,12 +8,12 @@ from pyrogram.types import Message
 from Mukund import Mukund
 from flask import Flask
 import random
+
 # Configure Logging
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
-
 
 storage = Mukund("Vegeta")
 db = storage.database("cric")
@@ -55,51 +55,51 @@ bot = Client(
 
 # Define restricted group IDs
 restricted_groups = [-1002173442670]  # Replace with actual group IDs
+
 @bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624]))
 async def hacke(c: Client, m: Message):
-try:
-# Check if the message is from a restricted group
-if m.chat.id in restricted_groups:
-logging.info(f"Ignoring message from restricted group: {m.chat.id}")
-return
+    try:
+        # Check if the message is from a restricted group
+        if m.chat.id in restricted_groups:
+            logging.info(f"Ignoring message from restricted group: {m.chat.id}")
+            return
 
-await asyncio.sleep(random.uniform(0.5, 1.0))  # Small delay  
+        await asyncio.sleep(random.uniform(0.5, 1.0))  # Small delay  
 
-    if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:  
-        logging.info(f"Detected message with caption: {m.caption}")  
-        file_data = db.get(m.photo.file_unique_id)  
+        if m.caption and "/ᴄᴏʟʟᴇᴄᴛ" in m.caption:  
+            logging.info(f"Detected message with caption: {m.caption}")  
+            file_data = db.get(m.photo.file_unique_id)  
 
-        if file_data:  
-            logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")  
+            if file_data:  
+                logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")  
 
-            # Send /collect command  
-            await m.reply(f"/collect {file_data['name']}")  
+                # Send /collect command  
+                await m.reply(f"/collect {file_data['name']}")  
 
-            # Wait a bit before sending reaction message  
-            await asyncio.sleep(random.uniform(2.0, 4.0))    
+                # Wait a bit before sending reaction message  
+                await asyncio.sleep(random.uniform(2.0, 4.0))    
 
-            # Fun messages after collecting  
-            fun_responses = [  
-                "Camping ke fayde ",  
-                "Successfully chori kr liya",  
-                "OP",  
-                "OP bhai OP ",  
-                "Hell yeah! ",  
-                "Fuck yeah! "  
-            ]  
-            fun_response = random.choice(fun_responses)  
-            await m.reply(fun_response)  
+                # Fun messages after collecting  
+                fun_responses = [  
+                    "Camping ke fayde ",  
+                    "Successfully chori kr liya",  
+                    "OP",  
+                    "OP bhai OP ",  
+                    "Hell yeah! ",  
+                    "Fuck yeah! "  
+                ]  
+                fun_response = random.choice(fun_responses)  
+                await m.reply(fun_response)  
 
-        else:  
-            logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")  
+            else:  
+                logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")  
 
-except FloodWait as e:  
-    logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")  
-    await asyncio.sleep(e.value)  
+    except FloodWait as e:  
+        logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")  
+        await asyncio.sleep(e.value)  
 
-except Exception as e:  
-    logging.error(f"Error processing message: {e}")
-
+    except Exception as e:  
+        logging.error(f"Error processing message: {e}")
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
