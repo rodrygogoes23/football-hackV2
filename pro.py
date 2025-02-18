@@ -84,7 +84,7 @@ async def hacke(c: Client, m: Message):
             logging.info(f"Ignoring message from restricted group: {m.chat.id}")
             return
 
-        await asyncio.sleep(random.uniform(0.5, 1.0))  # Small delay  
+        await asyncio.sleep(random.uniform(0.7, 1.0))  # Small delay  
 
         if m.caption and "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:  
             logging.info(f"Detected message with caption: {m.caption}")  
@@ -94,7 +94,11 @@ async def hacke(c: Client, m: Message):
                 logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")  
 
                 # Send /collect command  
-                await m.reply(f"/collect {file_data['name']}")  
+                collect_message = await m.reply(f"/collect {file_data['name']}")  
+
+                # Wait a bit before deleting the message  
+                await asyncio.sleep(2)  
+                await collect_message.delete()  
 
                 # Wait a bit before sending reaction message  
                 await asyncio.sleep(random.uniform(2.0, 4.0))    
