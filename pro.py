@@ -113,14 +113,13 @@ async def hacke(c: Client, m: Message):
 
 @bot.on_message(filters.command("fileid") & filters.reply)
 async def extract_file_id(_, message: Message):
-    """ Extracts and sends the file ID of a replied photo """
+    """ Extracts and sends the unique file ID of a replied photo """
     if not message.reply_to_message or not message.reply_to_message.photo:
         await message.reply("⚠ Please reply to a photo to extract the file ID.")
         return
 
-    file_id = message.reply_to_message.photo.file_id  # Extract file ID
-    await message.reply(f"📂 **File ID:** `{file_id}`")  # Send file ID in chat
-
+    file_unique_id = message.reply_to_message.photo.file_unique_id  # Extract unique file ID
+    await message.reply(f"📂 **File Unique ID:** `AgAD{file_unique_id}`")  # Format it correctly
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
