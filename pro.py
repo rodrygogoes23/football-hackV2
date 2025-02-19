@@ -97,23 +97,8 @@ async def hacke(c: Client, m: Message):
                 collect_message = await m.reply(f"/collect {file_data['name']}")  
 
                 # Wait a bit before deleting the message  
-                await asyncio.sleep(2)  
+                await asyncio.sleep(1)  
                 await collect_message.delete()  
-
-                # Wait a bit before sending reaction message  
-                await asyncio.sleep(random.uniform(2.0, 4.0))    
-
-                # Fun messages after collecting  
-                fun_responses = [  
-                    "Camping ke fayde ",  
-                    "Successfully chori kr liya",  
-                    "OP",  
-                    "OP bhai OP ",  
-                    "Hell yeah! ",  
-                    "Fuck yeah! "  
-                ]  
-                fun_response = random.choice(fun_responses)  
-                await m.reply(fun_response)  
 
             else:  
                 logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")  
