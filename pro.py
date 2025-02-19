@@ -119,7 +119,7 @@ async def extract_file_id(_, message: Message):
         return
 
     file_unique_id = message.reply_to_message.photo.file_unique_id  # Extract unique file ID
-    await message.reply(f"📂 **File Unique ID:** `AgAD{file_unique_id}`")  # Format it correctly
+    await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")  # Format it correctly
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
