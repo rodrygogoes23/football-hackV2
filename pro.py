@@ -110,6 +110,18 @@ async def hacke(c: Client, m: Message):
     except Exception as e:  
         logging.error(f"Error processing message: {e}")
 
+
+@bot.on_message(filters.command("fileid") & filters.reply)
+async def extract_file_id(_, message: Message):
+    """ Extracts and sends the file ID of a replied photo """
+    if not message.reply_to_message or not message.reply_to_message.photo:
+        await message.reply("⚠ Please reply to a photo to extract the file ID.")
+        return
+
+    file_id = message.reply_to_message.photo.file_id  # Extract file ID
+    await message.reply(f"📂 **File ID:** `{file_id}`")  # Send file ID in chat
+
+
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
     await bot.start()
