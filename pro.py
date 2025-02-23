@@ -121,9 +121,10 @@ async def extract_file_id(_, message: Message):
     file_unique_id = message.reply_to_message.photo.file_unique_id  # Extract unique file ID
     await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")  # Format it correctly
 
+
 @bot.on_message(filters.command("addp") & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def add_player(_, message: Message):
-    """Adds a new player to the database with a name."""
+    """Adds a new player to the database."""
     if not message.reply_to_message or not message.reply_to_message.photo:
         await message.reply("⚠ Please reply to a photo to add the player.")
         return
@@ -136,9 +137,10 @@ async def add_player(_, message: Message):
     file_unique_id = message.reply_to_message.photo.file_unique_id
     player_name = " ".join(args[1:])  # Get player name from command arguments
 
-    db.set(file_unique_id, {"name": player_name})  # Store in database
-    await message.reply(f"✅ Player **{player_name}** added with ID `{file_unique_id}`!")
+    # Insert data in the correct format
+    db.insert({"id": file_unique_id, "name": player_name})
 
+    await message.reply(f"✅ Player **{player_name}** added with ID `{file_unique_id}`!")
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
