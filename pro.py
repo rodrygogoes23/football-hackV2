@@ -135,12 +135,13 @@ async def add_player(_, message: Message):
         return
 
     file_unique_id = message.reply_to_message.photo.file_unique_id
-    player_name = " ".join(args[1:])  # Get player name from command arguments
+    player_name = " ".join(args[1:])  # Extract player name
 
-    # Insert data in the correct format
-    db.insert({"id": file_unique_id, "name": player_name})
-
-    await message.reply(f"✅ Player **{player_name}** added with ID `{file_unique_id}`!")
+    try:
+        db.update({file_unique_id: player_name})  # Attempt to update database
+        await message.reply(f"✅ Player **{player_name}** added with ID `{file_unique_id}`!")
+    except AttributeError:
+        await message.reply("⚠ Database error: Method not found! Check with `print(dir(db))`.")
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
