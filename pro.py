@@ -9,7 +9,7 @@ from Mukund import Mukund
 from flask import Flask
 import random
 
-Configure Logging
+##Configure Logging
 
 logging.basicConfig(
 format="%(asctime)s - %(levelname)s - %(message)s",
@@ -19,7 +19,7 @@ level=logging.INFO
 storage = Mukund("Vegeta")
 db = storage.database("cric")
 
-Create Flask app for health check
+##Create Flask app for health check
 
 web_app = Flask(name)
 
@@ -36,7 +36,7 @@ config = Config()
 config.bind = ["0.0.0.0:8000"]  
 await serve(web_app, config)
 
-Ensure required environment variables exist
+##Ensure required environment variables exist
 
 API_ID = os.getenv("API_ID")
 API_HASH = os.getenv("API_HASH")
@@ -46,7 +46,7 @@ assert API_ID is not None, "Missing API_ID in environment variables!"
 assert API_HASH is not None, "Missing API_HASH in environment variables!"
 assert SESSION_STRING is not None, "Missing SESSION in environment variables!"
 
-Initialize Pyrogram bot
+##Initialize Pyrogram bot
 
 bot = Client(
 "pro",
@@ -57,7 +57,7 @@ workers=10,
 max_concurrent_transmissions=5
 )
 
-Define restricted group IDs
+##Define restricted group IDs
 
 restricted_groups = [-1002173442670]  # Replace with actual group IDs
 collect_running = False  # Control flag for the function
