@@ -68,7 +68,7 @@ async def stop_collect(_, message: Message):
     collect_running = False
     await message.reply("🛑 Collect function stopped!")
 
-@bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624, 1710597756]))
+@bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164]))
 async def handle_photos(c: Client, m: Message):
     global collect_running
     if not collect_running:
