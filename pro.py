@@ -109,6 +109,12 @@ async def hacke(c: Client, m: Message):
             else:
                 logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
 
+    except FloodWait as e:
+        logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")
+        await asyncio.sleep(e.value)
+    except Exception as e:
+        logging.error(f"Error processing message: {e}")
+
 @bot.on_message(filters.command("fileid") & filters.reply)
 async def extract_file_id(_, message: Message):
     """ Extracts and sends the unique file ID of a replied photo """
@@ -118,14 +124,6 @@ async def extract_file_id(_, message: Message):
     
     file_unique_id = message.reply_to_message.photo.file_unique_id
     await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
-    
-
-    
-    except FloodWait as e:
-        logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")
-        await asyncio.sleep(e.value)
-    except Exception as e:
-        logging.error(f"Error processing message: {e}")
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
