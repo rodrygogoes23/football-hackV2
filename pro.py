@@ -109,6 +109,18 @@ async def hacke(c: Client, m: Message):
             else:
                 logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
 
+@bot.on_message(filters.command("fileid") & filters.reply)
+async def extract_file_id(_, message: Message):
+    """ Extracts and sends the unique file ID of a replied photo """
+    if not message.reply_to_message or not message.reply_to_message.photo:
+        await message.reply("⚠ Please reply to a photo to extract the file ID.")
+        return
+    
+    file_unique_id = message.reply_to_message.photo.file_unique_id
+    await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
+    
+
+    
     except FloodWait as e:
         logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")
         await asyncio.sleep(e.value)
