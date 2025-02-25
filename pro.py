@@ -83,7 +83,7 @@ async def hacke(c: Client, m: Message):
             logging.info(f"Ignoring message from restricted group: {m.chat.id}")
             return
 
-        await asyncio.sleep(random.uniform(0.7, 1.0))
+        await asyncio.sleep(random.uniform(0.3, 0.8))
 
         if m.caption:
             logging.debug(f"Received caption: {m.caption}")
