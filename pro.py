@@ -85,13 +85,25 @@ async def hacke(c: Client, m: Message):
 
         await asyncio.sleep(random.uniform(0.7, 1.0))
 
-        if m.caption and "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:
-            logging.info(f"Detected message with caption: {m.caption}")
+        if m.caption:
+            logging.debug(f"Received caption: {m.caption}")
+
+            if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:
+                command = "/collect"
+            elif "❄️ ʟᴏᴏᴋ ᴀɴ ᴀᴡsᴏᴍᴇ ᴄᴇʟᴇʙʀɪᴛʏ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜᴇʀ/ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:
+                logging.info(f"Detected celebrity message: {m.caption}")
+                command = "/collect"
+            elif "🔮 ᴅᴏᴄᴛᴏʀ ꜱᴛʀᴀɴɢᴇ ꜱᴀᴡ 𝟣𝟦 ᴍɪʟʟɪᴏɴ ᴏᴜᴛᴄᴏᴍᴇꜱ… ɪɴ ᴏɴʟʏ ᴏɴᴇ, ʏᴏᴜ ᴄʟᴀɪᴍ ᴛʜɪꜱ ꜱᴜᴘᴇʀꜱᴛᴀʀ!" in m.caption:
+                logging.info(f"Detected Doctor Strange message: {m.caption}")
+                command = "/hunt"
+            else:
+                return  # Ignore if no matching caption
+
             file_data = db.get(m.photo.file_unique_id)
 
             if file_data:
                 logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
-                collect_message = await m.reply(f"/collect {file_data['name']}")
+                collect_message = await m.reply(f"{command} {file_data['name']}")
                 await asyncio.sleep(1)
                 await collect_message.delete()
             else:
@@ -103,37 +115,6 @@ async def hacke(c: Client, m: Message):
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 
-@bot.on_message(filters.command("fileid") & filters.reply)
-async def extract_file_id(_, message: Message):
-    """ Extracts and sends the unique file ID of a replied photo """
-    if not message.reply_to_message or not message.reply_to_message.photo:
-        await message.reply("⚠ Please reply to a photo to extract the file ID.")
-        return
-    
-    file_unique_id = message.reply_to_message.photo.file_unique_id
-    await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
-
-@bot.on_message(filters.command("addp") & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
-async def add_player(_, message: Message):
-    """Adds a new player to the database."""
-    if not message.reply_to_message or not message.reply_to_message.photo:
-        await message.reply("⚠ Please reply to a photo to add the player.")
-        return
-
-    args = message.command
-    if len(args) < 2:
-        await message.reply("⚠ Usage: `/addp PlayerName` (Reply to a photo)")
-        return
-
-    file_unique_id = message.reply_to_message.photo.file_unique_id
-    player_name = " ".join(args[1:])
-
-    try:
-        db.update({file_unique_id: player_name})
-        await message.reply(f"✅ Player **{player_name}** added with ID `{file_unique_id}`!")
-    except AttributeError:
-        await message.reply("⚠ Database error: Method not found! Check with `print(dir(db))`.")
-
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
     await bot.start()
@@ -144,5 +125,3 @@ async def main():
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
-
-
