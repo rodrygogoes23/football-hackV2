@@ -54,7 +54,7 @@ bot = Client(
 )
 
 # Define restricted group IDs
-restricted_groups = [-1002173442670]  # Replace with actual group IDs
+restricted_groups = [-1002436920609]  # Replace with actual group IDs
 collect_running = False  # Control flag for the function
 
 @bot.on_message(filters.command("startcollect") & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
@@ -72,7 +72,7 @@ async def stop_collect(_, message: Message):
     collect_running = False
     await message.reply("🛑 Collect function stopped!")
 
-@bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164]))
+@bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164, 7957490622]))
 async def hacke(c: Client, m: Message):
     global collect_running
     if not collect_running:
