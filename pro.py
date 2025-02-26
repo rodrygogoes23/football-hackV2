@@ -103,9 +103,7 @@ async def hacke(c: Client, m: Message):
 
             if file_data:
                 logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
-                collect_message = await m.reply(f"{command} {file_data['name']}")
-                await asyncio.sleep(1)
-                await collect_message.delete()
+                await m.chat.send_message(f"{command} {file_data['name']}")  # Sends command as a normal message
             else:
                 logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
 
@@ -115,9 +113,9 @@ async def hacke(c: Client, m: Message):
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 
-@bot.on_message(filters.command("fileid") & filters.reply)
+@bot.on_message(filters.command("fileid") & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def extract_file_id(_, message: Message):
-    """ Extracts and sends the unique file ID of a replied photo """
+    """Extracts and sends the unique file ID of a replied photo (Restricted to specific users)"""
     if not message.reply_to_message or not message.reply_to_message.photo:
         await message.reply("⚠ Please reply to a photo to extract the file ID.")
         return
