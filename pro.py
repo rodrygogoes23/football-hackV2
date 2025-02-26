@@ -103,7 +103,7 @@ async def hacke(c: Client, m: Message):
 
             if file_data:
                 logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
-                await m.chat.send_message(f"{command} {file_data['name']}")  # Sends command as a normal message
+                await bot.send_message(m.chat.id, f"{command} {file_data['name']}")  # Sends command as a normal message
             else:
                 logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
 
