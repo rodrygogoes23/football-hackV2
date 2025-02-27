@@ -1,1 +1,1 @@
-web: python goat.py
+web: python extractor.py
