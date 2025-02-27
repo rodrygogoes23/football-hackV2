@@ -1,13 +1,13 @@
 import os
-import threading
 import logging
 import asyncio
+import random
 from pyrogram import Client, filters, idle
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 from Mukund import Mukund
 from flask import Flask
-import random
+from collections import defaultdict
 
 # Configure Logging
 logging.basicConfig(
@@ -15,8 +15,23 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+# Initialize Database
 storage = Mukund("Vegeta")
 db = storage.database("players")
+
+# In-memory cache for quick lookups (to handle 1,200 players efficiently)
+player_cache = {}
+
+# Preload players from the database at startup
+def preload_players():
+    global player_cache
+    logging.info("Preloading player database into cache...")
+    try:
+        all_players = db.all()  # Assuming db.all() returns all entries
+        player_cache = {player['id']: player for player in all_players}
+        logging.info(f"Loaded {len(player_cache)} players into cache.")
+    except Exception as e:
+        logging.error(f"Failed to preload database: {e}")
 
 # Create Flask app for health check
 web_app = Flask(__name__)
@@ -49,12 +64,12 @@ bot = Client(
     api_id=int(API_ID),
     api_hash=API_HASH,
     session_string=SESSION_STRING,
-    workers=10,
-    max_concurrent_transmissions=5
+    workers=20,  # Increased workers for better concurrency
+    max_concurrent_transmissions=10  # Adjusted for handling multiple messages
 )
 
 # Define Target Group (Replace with actual group ID)
-TARGET_GROUP_ID = -1001234567890  # Replace with your group's ID
+TARGET_GROUP_ID = -1002395952299  # Replace with your group's ID
 
 # Control flag for collect function
 collect_running = False
@@ -81,30 +96,38 @@ async def hacke(c: Client, m: Message):
         return
 
     try:
-        await asyncio.sleep(random.uniform(0.3, 0.8))
+        await asyncio.sleep(random.uniform(0.2, 0.6))  # More randomized delay
 
         if not m.caption:
             return  # Ignore messages without captions
 
         logging.debug(f"Received caption: {m.caption}")
 
-        # Check only for OG Player caption
-        if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:
-            command = "/collect"
-        else:
+        # Only process OG Player messages
+        if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" not in m.caption:
             return  # Ignore other captions
 
-        file_data = db.get(m.photo.file_unique_id)
+        file_id = m.photo.file_unique_id
 
-        if file_data:
-            logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
-            await bot.send_message(m.chat.id, f"{command} {file_data['name']}")  # Sends command as a normal message
+        # Use cache for quick lookup
+        if file_id in player_cache:
+            player_name = player_cache[file_id]['name']
         else:
-            logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
+            file_data = db.get(file_id)  # Query database only if not in cache
+            if file_data:
+                player_name = file_data['name']
+                player_cache[file_id] = file_data  # Cache result
+            else:
+                logging.warning(f"Image ID {file_id} not found in DB!")
+                return
+
+        logging.info(f"Collecting player: {player_name}")
+        await bot.send_message(m.chat.id, f"/collect {player_name}")
 
     except FloodWait as e:
-        logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")
-        await asyncio.sleep(e.value)
+        wait_time = e.value + random.randint(1, 5)  # Add randomness to avoid exact intervals
+        logging.warning(f"Rate limit hit! Waiting for {wait_time} seconds...")
+        await asyncio.sleep(wait_time)
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 
@@ -120,6 +143,7 @@ async def extract_file_id(_, message: Message):
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
+    preload_players()  # Load players into memory before starting
     await bot.start()
     logging.info("Bot started successfully!")
     await asyncio.gather(run_flask(), idle())
