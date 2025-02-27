@@ -16,7 +16,7 @@ logging.basicConfig(
 )
 
 storage = Mukund("Vegeta")
-db = storage.database("merged")
+db = storage.database("players")
 
 # Create Flask app for health check
 web_app = Flask(__name__)
