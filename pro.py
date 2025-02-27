@@ -27,9 +27,12 @@ def preload_players():
     global player_cache
     logging.info("Preloading player database into cache...")
     try:
-        all_players = db.all()  # Assuming db.all() returns all entries
-        player_cache = {player['id']: player for player in all_players}
-        logging.info(f"Loaded {len(player_cache)} players into cache.")
+        all_players = db.all()  # This returns a dictionary, not a list
+        if isinstance(all_players, dict):  # Ensure it's a dictionary
+            player_cache = all_players  # Directly assign to cache
+            logging.info(f"Loaded {len(player_cache)} players into cache.")
+        else:
+            logging.error("Database returned unexpected data format!")
     except Exception as e:
         logging.error(f"Failed to preload database: {e}")
 
