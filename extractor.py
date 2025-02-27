@@ -41,9 +41,7 @@ async def extract_players():
     """Fetch player data from the channel and save it to a JSON file."""
     players = {}
 
-    await bot.start()
-# Your logic
-await bot.stop()  # Ensure it stops properly
+    async with bot:  # Ensures proper start and stop of bot
         async for message in bot.get_chat_history(CHANNEL_ID, limit=0):
             if message.text:
                 match = re.match(r"(.+?) - (AgA[A-Za-z0-9_-]+)", message.text)
@@ -59,10 +57,11 @@ await bot.stop()  # Ensure it stops properly
 
 async def main():
     """Run the player extraction and Flask health check concurrently"""
-    await bot.start()
-    await extract_players()
-    await asyncio.gather(run_flask())
+    await asyncio.gather(
+        extract_players(),  # Extract players from Telegram
+        run_flask()  # Start Flask health check
+    )
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())  # ✅ Uses the existing event loop
+    loop.run_until_complete(main())  # ✅ Uses the existing event loop # Uses asyncio.run() for better event loop handling 
