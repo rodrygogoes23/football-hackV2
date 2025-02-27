@@ -41,7 +41,9 @@ async def extract_players():
     """Fetch player data from the channel and save it to a JSON file."""
     players = {}
 
-    async with bot:
+    await bot.start()
+# Your logic
+await bot.stop()  # Ensure it stops properly
         async for message in bot.get_chat_history(CHANNEL_ID, limit=0):
             if message.text:
                 match = re.match(r"(.+?) - (AgA[A-Za-z0-9_-]+)", message.text)
