@@ -62,4 +62,5 @@ async def main():
     await asyncio.gather(run_flask())
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())  # ✅ Uses the existing event loop
