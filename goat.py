@@ -56,19 +56,17 @@ bot = Client(
 restricted_groups = [-1002436920609]  # Replace with actual group IDs
 collect_running = False  # Control flag for the function
 db = {}  # Dictionary to store player data
-
 async def load_database():
     """Fetches player data from the Telegram channel and stores it in a dictionary."""
     global db
     db.clear()
     
-    async with bot:
-        async for message in bot.get_chat_history(CHANNEL_ID, limit=0):
-            if message.text:
-                match = re.match(r"(.+?) - (AgA[A-Za-z0-9_-]+)", message.text)
-                if match:
-                    player_name, file_id = match.groups()
-                    db[file_id] = player_name
+    async for message in bot.get_chat_history(CHANNEL_ID, limit=0):
+        if message.text:
+            match = re.match(r"(.+?) - (AgA[A-Za-z0-9_-]+)", message.text)
+            if match:
+                player_name, file_id = match.groups()
+                db[file_id] = player_name
 
     logging.info(f"✅ Loaded {len(db)} players from the database!")
 
