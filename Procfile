@@ -1,1 +1,1 @@
-web: python pro.py
+web: python goat.py
