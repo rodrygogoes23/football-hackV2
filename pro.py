@@ -53,11 +53,13 @@ bot = Client(
     max_concurrent_transmissions=5
 )
 
-# Define restricted group IDs
-restricted_groups = [-1002436920609]  # Replace with actual group IDs
-collect_running = False  # Control flag for the function
+# Define Target Group (Replace with actual group ID)
+TARGET_GROUP_ID = -1001234567890  # Replace with your group's ID
 
-@bot.on_message(filters.command("startcollect") & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
+# Control flag for collect function
+collect_running = False
+
+@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def start_collect(_, message: Message):
     global collect_running
     if not collect_running:
@@ -66,46 +68,39 @@ async def start_collect(_, message: Message):
     else:
         await message.reply("⚠ Collect function is already running!")
 
-@bot.on_message(filters.command("stopcollect") & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
+@bot.on_message(filters.command("stopcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def stop_collect(_, message: Message):
     global collect_running
     collect_running = False
     await message.reply("🛑 Collect function stopped!")
 
-@bot.on_message(filters.photo & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164, 7957490622]))
+@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164, 7957490622]))
 async def hacke(c: Client, m: Message):
     global collect_running
     if not collect_running:
         return
 
     try:
-        if m.chat.id in restricted_groups:
-            logging.info(f"Ignoring message from restricted group: {m.chat.id}")
-            return
-
         await asyncio.sleep(random.uniform(0.3, 0.8))
 
-        if m.caption:
-            logging.debug(f"Received caption: {m.caption}")
+        if not m.caption:
+            return  # Ignore messages without captions
 
-            if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:
-                command = "/collect"
-            elif "❄️ ʟᴏᴏᴋ ᴀɴ ᴀᴡsᴏᴍᴇ ᴄᴇʟᴇʙʀɪᴛʏ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜᴇʀ/ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:
-                logging.info(f"Detected celebrity message: {m.caption}")
-                command = "/collect"
-            elif "🔮 ᴅᴏᴄᴛᴏʀ ꜱᴛʀᴀɴɢᴇ ꜱᴀᴡ 𝟣𝟦 ᴍɪʟʟɪᴏɴ ᴏᴜᴛᴄᴏᴍᴇꜱ… ɪɴ ᴏɴʟʏ ᴏɴᴇ, ʏᴏᴜ ᴄʟᴀɪᴍ ᴛʜɪꜱ ꜱᴜᴘᴇʀꜱᴛᴀʀ!" in m.caption:
-                logging.info(f"Detected Doctor Strange message: {m.caption}")
-                command = "/hunt"
-            else:
-                return  # Ignore if no matching caption
+        logging.debug(f"Received caption: {m.caption}")
 
-            file_data = db.get(m.photo.file_unique_id)
+        # Check only for OG Player caption
+        if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" in m.caption:
+            command = "/collect"
+        else:
+            return  # Ignore other captions
 
-            if file_data:
-                logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
-                await bot.send_message(m.chat.id, f"{command} {file_data['name']}")  # Sends command as a normal message
-            else:
-                logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
+        file_data = db.get(m.photo.file_unique_id)
+
+        if file_data:
+            logging.info(f"Image ID {m.photo.file_unique_id} found in DB: {file_data['name']}")
+            await bot.send_message(m.chat.id, f"{command} {file_data['name']}")  # Sends command as a normal message
+        else:
+            logging.warning(f"Image ID {m.photo.file_unique_id} not found in DB!")
 
     except FloodWait as e:
         logging.warning(f"Rate limit hit! Waiting for {e.value} seconds...")
@@ -113,7 +108,7 @@ async def hacke(c: Client, m: Message):
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 
-@bot.on_message(filters.command("fileid") & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
+@bot.on_message(filters.command("fileid") & filters.chat(TARGET_GROUP_ID) & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def extract_file_id(_, message: Message):
     """Extracts and sends the unique file ID of a replied photo (Restricted to specific users)"""
     if not message.reply_to_message or not message.reply_to_message.photo:
