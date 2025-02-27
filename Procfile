@@ -1,1 +1,1 @@
-web: python extractor.py
+web: python pro.py
