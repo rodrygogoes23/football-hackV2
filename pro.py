@@ -52,14 +52,10 @@ async def run_flask():
     config.bind = ["0.0.0.0:8000"]
     await serve(web_app, config)
 
-# Ensure required environment variables exist
-API_ID = os.getenv("API_ID")
-API_HASH = os.getenv("API_HASH")
-SESSION_STRING = os.getenv("SESSION")
+API_ID = 17143425  # Replace with your actual API ID
+API_HASH = "30a4231769abd4308b12b2b36147b6d0"  # Replace with your actual API hash
+SESSION_STRING = "BQEFloEAV3VkCrTzWsqODlCmZHYjAsswfvmE2EsmeFGqP97nwybgCBJzxufta_1mZWJZiYNttNMSIrfP39rQuFNdMMNnNZVIWrNzKhcLKDnw8qja71QuV8y2UE9JVwo3qjnoYUQBfoLiVCmEyzrPho2zg7t_-3vYz4-mjYGoLUssJ_yr1EEqKFw5OFlctNNbl19F_3kxfyasj_ake4kvw3Ay7XOJBewLxghHu__UqODR2HzkxJgVgLohlbNMl9LaNAZW-y5tD_NAkPtaLQ9nH4_RtN12BYwDIXjmab0UgpgQTtIkmPVJSJtkvxZH1eiXHLaFHJyCP0j0M8P95rYnpzd9T7NlRAAAAAGbAPHRAA"  # Replace with your actual session string
 
-assert API_ID is not None, "Missing API_ID in environment variables!"
-assert API_HASH is not None, "Missing API_HASH in environment variables!"
-assert SESSION_STRING is not None, "Missing SESSION in environment variables!"
 
 # Initialize Pyrogram bot
 bot = Client(
