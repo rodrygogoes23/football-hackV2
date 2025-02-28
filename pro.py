@@ -56,19 +56,24 @@ API_ID = 17143425  # Replace with your actual API ID
 API_HASH = "30a4231769abd4308b12b2b36147b6d0"  # Replace with your actual API hash
 SESSION_STRING = "BQEFloEAV3VkCrTzWsqODlCmZHYjAsswfvmE2EsmeFGqP97nwybgCBJzxufta_1mZWJZiYNttNMSIrfP39rQuFNdMMNnNZVIWrNzKhcLKDnw8qja71QuV8y2UE9JVwo3qjnoYUQBfoLiVCmEyzrPho2zg7t_-3vYz4-mjYGoLUssJ_yr1EEqKFw5OFlctNNbl19F_3kxfyasj_ake4kvw3Ay7XOJBewLxghHu__UqODR2HzkxJgVgLohlbNMl9LaNAZW-y5tD_NAkPtaLQ9nH4_RtN12BYwDIXjmab0UgpgQTtIkmPVJSJtkvxZH1eiXHLaFHJyCP0j0M8P95rYnpzd9T7NlRAAAAAGbAPHRAA"  # Replace with your actual session string
 
-
 # Initialize Pyrogram bot
 bot = Client(
     "pro",
     api_id=int(API_ID),
     api_hash=API_HASH,
     session_string=SESSION_STRING,
-    workers=20,  # Increased workers for better concurrency
-    max_concurrent_transmissions=10  # Adjusted for handling multiple messages
+    workers=20,  
+    max_concurrent_transmissions=10  
 )
 
 # Define Target Group (Replace with actual group ID)
-TARGET_GROUP_ID = -1002395952299  # Replace with your group's ID
+TARGET_GROUP_ID = -1002395952299  
+
+# Channel where rare cards should be logged
+EXCLUSIVE_CARDS_CHANNEL = -1002254491223  
+
+# List of rarities to log
+RARITIES_TO_LOG = {"Cosmic", "Limited Edition", "Exclusive", "Ultimate"}
 
 # Control flag for collect function
 collect_running = False
@@ -95,36 +100,45 @@ async def hacke(c: Client, m: Message):
         return
 
     try:
-        await asyncio.sleep(random.uniform(0.2, 0.6))  # More randomized delay
+        await asyncio.sleep(random.uniform(0.2, 0.6))  
 
         if not m.caption:
-            return  # Ignore messages without captions
+            return  
 
         logging.debug(f"Received caption: {m.caption}")
 
-        # Only process OG Player messages
         if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" not in m.caption:
-            return  # Ignore other captions
+            return  
 
         file_id = m.photo.file_unique_id
 
-        # Use cache for quick lookup
         if file_id in player_cache:
             player_name = player_cache[file_id]['name']
         else:
-            file_data = db.get(file_id)  # Query database only if not in cache
+            file_data = db.get(file_id)
             if file_data:
                 player_name = file_data['name']
-                player_cache[file_id] = file_data  # Cache result
+                player_cache[file_id] = file_data  
             else:
                 logging.warning(f"Image ID {file_id} not found in DB!")
                 return
 
         logging.info(f"Collecting player: {player_name}")
-        await bot.send_message(m.chat.id, f"/collect {player_name}")
+        response = await bot.send_message(m.chat.id, f"/collect {player_name}")
+
+        await asyncio.sleep(2)  
+
+        async for reply in bot.iter_history(m.chat.id, limit=15):
+            if reply.reply_to_message and reply.reply_to_message.message_id == response.message_id:
+                for rarity in RARITIES_TO_LOG:
+                    if f"🟡 Rarity : {rarity}" in reply.text:
+                        logging.info(f"Logging {rarity} card: {player_name}")
+                        await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
+                        break
+                break  
 
     except FloodWait as e:
-        wait_time = e.value + random.randint(1, 5)  # Add randomness to avoid exact intervals
+        wait_time = e.value + random.randint(1, 5)  
         logging.warning(f"Rate limit hit! Waiting for {wait_time} seconds...")
         await asyncio.sleep(wait_time)
     except Exception as e:
@@ -132,7 +146,6 @@ async def hacke(c: Client, m: Message):
 
 @bot.on_message(filters.command("fileid") & filters.chat(TARGET_GROUP_ID) & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def extract_file_id(_, message: Message):
-    """Extracts and sends the unique file ID of a replied photo (Restricted to specific users)"""
     if not message.reply_to_message or not message.reply_to_message.photo:
         await message.reply("⚠ Please reply to a photo to extract the file ID.")
         return
@@ -141,8 +154,7 @@ async def extract_file_id(_, message: Message):
     await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
 
 async def main():
-    """ Runs Pyrogram bot and Flask server concurrently """
-    preload_players()  # Load players into memory before starting
+    preload_players()  
     await bot.start()
     logging.info("Bot started successfully!")
     await asyncio.gather(run_flask(), idle())
