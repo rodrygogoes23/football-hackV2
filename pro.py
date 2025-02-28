@@ -19,7 +19,7 @@ logging.basicConfig(
 storage = Mukund("Vegeta")
 db = storage.database("football")
 
-# In-memory cache for quick lookups (to handle 1,200 players efficiently)
+# In-memory cache for quick lookups
 player_cache = {}
 
 # Preload players from the database at startup
@@ -27,9 +27,9 @@ def preload_players():
     global player_cache
     logging.info("Preloading player database into cache...")
     try:
-        all_players = db.all()  # This returns a dictionary, not a list
-        if isinstance(all_players, dict):  # Ensure it's a dictionary
-            player_cache = all_players  # Directly assign to cache
+        all_players = db.all()  
+        if isinstance(all_players, dict):
+            player_cache = all_players
             logging.info(f"Loaded {len(player_cache)} players into cache.")
         else:
             logging.error("Database returned unexpected data format!")
@@ -63,22 +63,20 @@ bot = Client(
     api_hash=API_HASH,
     session_string=SESSION_STRING,
     workers=20,  
-    max_concurrent_transmissions=10  
+    max_concurrent_transmissions=10
 )
 
-# Define Target Group (Replace with actual group ID)
-TARGET_GROUP_ID = -1002395952299  
+# Define Target Group and Forwarding Channel
+TARGET_GROUP_ID = -1002395952299  # Replace with your group's ID
+EXCLUSIVE_CARDS_CHANNEL = -1002254491223  # Channel where exclusive cards will be forwarded
 
-# Channel where rare cards should be logged
-EXCLUSIVE_CARDS_CHANNEL = -1002254491223  
-
-# List of rarities to log
-RARITIES_TO_LOG = {"Cosmic", "Limited Edition", "Exclusive", "Ultimate"}
+# Rarities to Log & Forward
+RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate"]
 
 # Control flag for collect function
 collect_running = False
 
-@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663, 7859049019]))
+@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def start_collect(_, message: Message):
     global collect_running
     if not collect_running:
@@ -87,13 +85,13 @@ async def start_collect(_, message: Message):
     else:
         await message.reply("⚠ Collect function is already running!")
 
-@bot.on_message(filters.command("stopcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663, 7859049019]))
+@bot.on_message(filters.command("stopcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def stop_collect(_, message: Message):
     global collect_running
     collect_running = False
     await message.reply("🛑 Collect function stopped!")
 
-@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164, 7957490622, 7859049019]))
+@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164, 7957490622]))
 async def hacke(c: Client, m: Message):
     global collect_running
     if not collect_running:
@@ -107,11 +105,13 @@ async def hacke(c: Client, m: Message):
 
         logging.debug(f"Received caption: {m.caption}")
 
+        # Only process OG Player messages
         if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" not in m.caption:
             return  
 
         file_id = m.photo.file_unique_id
 
+        # Use cache for quick lookup
         if file_id in player_cache:
             player_name = player_cache[file_id]['name']
         else:
@@ -128,7 +128,7 @@ async def hacke(c: Client, m: Message):
 
         await asyncio.sleep(2)  
 
-        async for reply in bot.iter_history(m.chat.id, limit=15):
+        async for reply in bot.get_chat_history(m.chat.id, limit=15):
             if reply.reply_to_message and reply.reply_to_message.message_id == response.message_id:
                 for rarity in RARITIES_TO_LOG:
                     if f"🟡 Rarity : {rarity}" in reply.text:
@@ -146,6 +146,7 @@ async def hacke(c: Client, m: Message):
 
 @bot.on_message(filters.command("fileid") & filters.chat(TARGET_GROUP_ID) & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def extract_file_id(_, message: Message):
+    """Extracts and sends the unique file ID of a replied photo (Restricted to specific users)"""
     if not message.reply_to_message or not message.reply_to_message.photo:
         await message.reply("⚠ Please reply to a photo to extract the file ID.")
         return
@@ -154,6 +155,7 @@ async def extract_file_id(_, message: Message):
     await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
 
 async def main():
+    """ Runs Pyrogram bot and Flask server concurrently """
     preload_players()  
     await bot.start()
     logging.info("Bot started successfully!")
