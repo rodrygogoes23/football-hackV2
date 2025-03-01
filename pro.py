@@ -124,14 +124,20 @@ async def hacke(c: Client, m: Message):
         await asyncio.sleep(2)  
 
         # 🔹 **Updated Section: Checking only bot replies to /collect**
-        async for reply in bot.get_chat_history(m.chat.id, limit=5):  
+        async for reply in bot.get_chat_history(m.chat.id, limit=15):
             if reply.reply_to_message and reply.reply_to_message.message_id == response.message_id:
+                logging.info(f"✅ Found a reply to /collect: {reply.text}")  # Debug log
+
                 for rarity in RARITIES_TO_LOG:
                     if f"🎯 Look You Collected A {rarity} Player !!" in reply.text:
-                        logging.info(f"Logging {rarity} card: {player_name}")
-                        await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
-                        break  
-                break  
+                        logging.info(f"🎯 Detected {rarity} card: {player_name}, Forwarding...")  # Debug log
+                        try:
+                            await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
+                            logging.info(f"✅ Successfully forwarded {rarity} card")
+                        except Exception as e:
+                            logging.error(f"❌ Error forwarding message: {e}")
+                        break
+                break 
 
     except FloodWait as e:
         wait_time = e.value + random.randint(1, 5)  
