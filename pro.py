@@ -76,7 +76,7 @@ RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate"]
 # Control flag for collect function
 collect_running = False
 
-@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
+@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7859049019, 7435756663]))
 async def start_collect(_, message: Message):
     global collect_running
     if not collect_running:
@@ -85,13 +85,13 @@ async def start_collect(_, message: Message):
     else:
         await message.reply("⚠ Collect function is already running!")
 
-@bot.on_message(filters.command("stopcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
+@bot.on_message(filters.command("stopcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7859049019, 7435756663]))
 async def stop_collect(_, message: Message):
     global collect_running
     collect_running = False
     await message.reply("🛑 Collect function stopped!")
 
-@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164, 7957490622]))
+@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7859049019,7828242164, 7957490622]))
 async def hacke(c: Client, m: Message):
     global collect_running
     if not collect_running:
@@ -131,7 +131,7 @@ async def hacke(c: Client, m: Message):
         async for reply in bot.get_chat_history(m.chat.id, limit=15):
             if reply.reply_to_message and reply.reply_to_message.message_id == response.message_id:
                 for rarity in RARITIES_TO_LOG:
-                    if f"🟡 Rarity : {rarity}" in reply.text:
+                    if f"Rarity : {rarity}" in reply.text:
                         logging.info(f"Logging {rarity} card: {player_name}")
                         await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
                         break
