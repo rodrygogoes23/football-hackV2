@@ -67,7 +67,7 @@ TARGET_GROUP_ID = -1002395952299
 EXCLUSIVE_CARDS_CHANNEL = -1002254491223  
 
 # Rarities to Log & Forward
-RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate"]
+RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate", "Common"]
 
 # Control flag for collect function
 collect_running = False
