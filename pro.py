@@ -107,6 +107,7 @@ async def hacke(c: Client, m: Message):
 
         file_id = m.photo.file_unique_id
 
+        # Check cache or DB
         if file_id in player_cache:
             player_name = player_cache[file_id]['name']
         else:
@@ -121,16 +122,23 @@ async def hacke(c: Client, m: Message):
         logging.info(f"Collecting player: {player_name}")
         response = await bot.send_message(m.chat.id, f"/collect {player_name}")
 
+        # Give the bot some time to reply
         await asyncio.sleep(2)  
 
-        # 🔹 **Updated Section: Checking only bot replies to /collect**
-        async for reply in bot.get_chat_history(m.chat.id, limit=15):
+        # Check only replies to the /collect message
+        async for reply in bot.get_chat_history(m.chat.id, limit=20):
+            logging.info(f"Scanning message: {reply.text}")  # Debug: see what's in the last 20 messages
             if reply.reply_to_message and reply.reply_to_message.message_id == response.message_id:
-                logging.info(f"✅ Found a reply to /collect: {reply.text}")  # Debug log
+                logging.info(f"✅ Found a reply to /collect: {reply.text}")
+
+                # Do a case-insensitive check for each rarity
+                lower_reply_text = reply.text.lower()
 
                 for rarity in RARITIES_TO_LOG:
-                    if f"🎯 Look You Collected A {rarity} Player !!" in reply.text:
-                        logging.info(f"🎯 Detected {rarity} card: {player_name}, Forwarding...")  # Debug log
+                    # Build the partial phrase: "look you collected a cosmic player"
+                    check_phrase = f"look you collected a {rarity.lower()} player"
+                    if check_phrase in lower_reply_text:
+                        logging.info(f"🎯 Detected {rarity} card: {player_name}, Forwarding...")
                         try:
                             await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
                             logging.info(f"✅ Successfully forwarded {rarity} card")
