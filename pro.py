@@ -42,20 +42,15 @@ bot = Client(
     "pro",
     api_id=int(API_ID),
     api_hash=API_HASH,
-    session_string=SESSION_STRING,
-    workers=20,  
-    max_concurrent_transmissions=10
+    session_string=SESSION_STRING
 )
 
 # Group and Forwarding Channel
 TARGET_GROUP_ID = -1002395952299  
 EXCLUSIVE_CARDS_CHANNEL = -1002254491223  
 
-# Football Bot ID
-FOOTBALL_BOT_ID = 7946198415  
-
 # Rarities to Log & Forward
-RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate", "Common"]
+RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate"]
 
 # Control flag for collect function
 collect_running = False
@@ -96,13 +91,13 @@ async def hacke(c: Client, m: Message):
         logging.info(f"Collecting player from message: {m.caption}")
         response = await bot.send_message(m.chat.id, f"/collect {m.caption.split(' ')[-1]}")
 
-        await asyncio.sleep(4)  # Ensure the bot's reply is received
+        await asyncio.sleep(2)  # Ensure the bot's reply is received
 
-        async for reply in bot.get_chat_history(m.chat.id, limit=100):
-            if reply.from_user and reply.from_user.id != FOOTBALL_BOT_ID:
-                continue  # Skip messages from other bots/users
+        async for reply in bot.get_chat_history(m.chat.id, limit=50):
+            if not reply.text:
+                continue  
 
-            logging.info(f"✅ Found a reply from the correct bot: {reply.text}")
+            logging.info(f"✅ Checking reply message: {reply.text}")
 
             for rarity in RARITIES_TO_LOG:
                 if f"🎯 Look You Collected A {rarity} Player !!" in reply.text:
@@ -123,15 +118,6 @@ async def hacke(c: Client, m: Message):
         await asyncio.sleep(wait_time)
     except Exception as e:
         logging.error(f"Error processing message: {e}")
-
-@bot.on_message(filters.command("fileid") & filters.chat(TARGET_GROUP_ID) & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
-async def extract_file_id(_, message: Message):
-    if not message.reply_to_message or not message.reply_to_message.photo:
-        await message.reply("⚠ Please reply to a photo to extract the file ID.")
-        return
-    
-    file_unique_id = message.reply_to_message.photo.file_unique_id
-    await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
 
 async def main():
     preload_players()
