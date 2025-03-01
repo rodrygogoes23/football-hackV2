@@ -6,7 +6,6 @@ from pyrogram import Client, filters, idle
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 from Mukund import Mukund
-from flask import Flask
 
 # Configure Logging
 logging.basicConfig(
@@ -26,7 +25,7 @@ def preload_players():
     global player_cache
     logging.info("Preloading player database into cache...")
     try:
-        all_players = db.all()  
+        all_players = db.all()
         if isinstance(all_players, dict):
             player_cache = all_players
             logging.info(f"Loaded {len(player_cache)} players into cache.")
@@ -34,20 +33,6 @@ def preload_players():
             logging.error("Database returned unexpected data format!")
     except Exception as e:
         logging.error(f"Failed to preload database: {e}")
-
-# Flask app for health check
-web_app = Flask(__name__)
-
-@web_app.route('/health')
-def health_check():
-    return "OK", 200
-
-async def run_flask():
-    from hypercorn.asyncio import serve
-    from hypercorn.config import Config
-    config = Config()
-    config.bind = ["0.0.0.0:8000"]
-    await serve(web_app, config)
 
 API_ID = 17143425  
 API_HASH = "30a4231769abd4308b12b2b36147b6d0"
@@ -65,6 +50,9 @@ bot = Client(
 # Group and Forwarding Channel
 TARGET_GROUP_ID = -1002395952299  
 EXCLUSIVE_CARDS_CHANNEL = -1002254491223  
+
+# Football Bot ID
+FOOTBALL_BOT_ID = 7946198415  
 
 # Rarities to Log & Forward
 RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate", "Common"]
@@ -87,14 +75,14 @@ async def stop_collect(_, message: Message):
     collect_running = False
     await message.reply("🛑 Collect function stopped!")
 
-@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7859049019,7828242164, 7957490622]))
+@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7859049019, 7828242164, 7957490622]))
 async def hacke(c: Client, m: Message):
     global collect_running
     if not collect_running:
         return
 
     try:
-        await asyncio.sleep(random.uniform(0.2, 0.6))  
+        await asyncio.sleep(random.uniform(0.2, 0.6))
 
         if not m.caption:
             return  
@@ -105,50 +93,32 @@ async def hacke(c: Client, m: Message):
         if "🔥 ʟᴏᴏᴋ ᴀɴ ᴏɢ ᴘʟᴀʏᴇʀ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" not in m.caption:
             return  
 
-        file_id = m.photo.file_unique_id
+        logging.info(f"Collecting player from message: {m.caption}")
+        response = await bot.send_message(m.chat.id, f"/collect {m.caption.split(' ')[-1]}")
 
-        # Check cache or DB
-        if file_id in player_cache:
-            player_name = player_cache[file_id]['name']
-        else:
-            file_data = db.get(file_id)
-            if file_data:
-                player_name = file_data['name']
-                player_cache[file_id] = file_data  
-            else:
-                logging.warning(f"Image ID {file_id} not found in DB!")
-                return
+        await asyncio.sleep(4)  # Ensure the bot's reply is received
 
-        logging.info(f"Collecting player: {player_name}")
-        response = await bot.send_message(m.chat.id, f"/collect {player_name}")
+        async for reply in bot.get_chat_history(m.chat.id, limit=100):
+            if reply.from_user and reply.from_user.id != FOOTBALL_BOT_ID:
+                continue  # Skip messages from other bots/users
 
-        # Give the bot some time to reply
-        await asyncio.sleep(2)  
+            logging.info(f"✅ Found a reply from the correct bot: {reply.text}")
 
-        # Check only replies to the /collect message
-        async for reply in bot.get_chat_history(m.chat.id, limit=20):
-            logging.info(f"Scanning message: {reply.text}")  # Debug: see what's in the last 20 messages
-            if reply.reply_to_message and reply.reply_to_message.message_id == response.message_id:
-                logging.info(f"✅ Found a reply to /collect: {reply.text}")
+            for rarity in RARITIES_TO_LOG:
+                if f"🎯 Look You Collected A {rarity} Player !!" in reply.text:
+                    logging.info(f"🎯 Detected {rarity} card, Forwarding...")
 
-                # Do a case-insensitive check for each rarity
-                lower_reply_text = reply.text.lower()
+                    try:
+                        await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
+                        logging.info(f"✅ Successfully forwarded {rarity} card")
+                    except Exception as e:
+                        logging.error(f"❌ Error forwarding message: {e}")
 
-                for rarity in RARITIES_TO_LOG:
-                    # Build the partial phrase: "look you collected a cosmic player"
-                    check_phrase = f"look you collected a {rarity.lower()} player"
-                    if check_phrase in lower_reply_text:
-                        logging.info(f"🎯 Detected {rarity} card: {player_name}, Forwarding...")
-                        try:
-                            await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
-                            logging.info(f"✅ Successfully forwarded {rarity} card")
-                        except Exception as e:
-                            logging.error(f"❌ Error forwarding message: {e}")
-                        break
-                break 
+                    break  # Stop checking once a rarity match is found
+            break  # Exit loop after processing the first valid message
 
     except FloodWait as e:
-        wait_time = e.value + random.randint(1, 5)  
+        wait_time = e.value + random.randint(1, 5)
         logging.warning(f"Rate limit hit! Waiting for {wait_time} seconds...")
         await asyncio.sleep(wait_time)
     except Exception as e:
@@ -164,10 +134,10 @@ async def extract_file_id(_, message: Message):
     await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
 
 async def main():
-    preload_players()  
+    preload_players()
     await bot.start()
     logging.info("Bot started successfully!")
-    await asyncio.gather(run_flask(), idle())
+    await idle()
     await bot.stop()
 
 if __name__ == "__main__":
