@@ -63,7 +63,7 @@ bot = Client(
 )
 
 # Group and Forwarding Channel
-TARGET_GROUP_ID = -1002395952299  
+TARGET_GROUP_ID = -1002268194521  
 EXCLUSIVE_CARDS_CHANNEL = -1002254491223  
 
 # Rarities to Log & Forward
