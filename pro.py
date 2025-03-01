@@ -7,7 +7,6 @@ from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 from Mukund import Mukund
 from flask import Flask
-from collections import defaultdict
 
 # Configure Logging
 logging.basicConfig(
@@ -36,7 +35,7 @@ def preload_players():
     except Exception as e:
         logging.error(f"Failed to preload database: {e}")
 
-# Create Flask app for health check
+# Flask app for health check
 web_app = Flask(__name__)
 
 @web_app.route('/health')
@@ -44,19 +43,16 @@ def health_check():
     return "OK", 200
 
 async def run_flask():
-    """ Runs Flask server for health checks """
     from hypercorn.asyncio import serve
     from hypercorn.config import Config
-
     config = Config()
     config.bind = ["0.0.0.0:8000"]
     await serve(web_app, config)
 
-API_ID = 17143425  # Replace with your actual API ID
-API_HASH = "30a4231769abd4308b12b2b36147b6d0"  # Replace with your actual API hash
-SESSION_STRING = "BQEFloEAV3VkCrTzWsqODlCmZHYjAsswfvmE2EsmeFGqP97nwybgCBJzxufta_1mZWJZiYNttNMSIrfP39rQuFNdMMNnNZVIWrNzKhcLKDnw8qja71QuV8y2UE9JVwo3qjnoYUQBfoLiVCmEyzrPho2zg7t_-3vYz4-mjYGoLUssJ_yr1EEqKFw5OFlctNNbl19F_3kxfyasj_ake4kvw3Ay7XOJBewLxghHu__UqODR2HzkxJgVgLohlbNMl9LaNAZW-y5tD_NAkPtaLQ9nH4_RtN12BYwDIXjmab0UgpgQTtIkmPVJSJtkvxZH1eiXHLaFHJyCP0j0M8P95rYnpzd9T7NlRAAAAAGbAPHRAA"  # Replace with your actual session string
+API_ID = 17143425  
+API_HASH = "30a4231769abd4308b12b2b36147b6d0"
+SESSION_STRING = "BQEFloEAV3VkCrTzWsqODlCmZHYjAsswfvmE2EsmeFGqP97nwybgCBJzxufta_1mZWJZiYNttNMSIrfP39rQuFNdMMNnNZVIWrNzKhcLKDnw8qja71QuV8y2UE9JVwo3qjnoYUQBfoLiVCmEyzrPho2zg7t_-3vYz4-mjYGoLUssJ_yr1EEqKFw5OFlctNNbl19F_3kxfyasj_ake4kvw3Ay7XOJBewLxghHu__UqODR2HzkxJgVgLohlbNMl9LaNAZW-y5tD_NAkPtaLQ9nH4_RtN12BYwDIXjmab0UgpgQTtIkmPVJSJtkvxZH1eiXHLaFHJyCP0j0M8P95rYnpzd9T7NlRAAAAAGbAPHRAA"
 
-# Initialize Pyrogram bot
 bot = Client(
     "pro",
     api_id=int(API_ID),
@@ -66,9 +62,9 @@ bot = Client(
     max_concurrent_transmissions=10
 )
 
-# Define Target Group and Forwarding Channel
-TARGET_GROUP_ID = -1002395952299  # Replace with your group's ID
-EXCLUSIVE_CARDS_CHANNEL = -1002254491223  # Channel where exclusive cards will be forwarded
+# Group and Forwarding Channel
+TARGET_GROUP_ID = -1002395952299  
+EXCLUSIVE_CARDS_CHANNEL = -1002254491223  
 
 # Rarities to Log & Forward
 RARITIES_TO_LOG = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate"]
@@ -111,7 +107,6 @@ async def hacke(c: Client, m: Message):
 
         file_id = m.photo.file_unique_id
 
-        # Use cache for quick lookup
         if file_id in player_cache:
             player_name = player_cache[file_id]['name']
         else:
@@ -128,13 +123,14 @@ async def hacke(c: Client, m: Message):
 
         await asyncio.sleep(2)  
 
-        async for reply in bot.get_chat_history(m.chat.id, limit=15):
+        # 🔹 **Updated Section: Checking only bot replies to /collect**
+        async for reply in bot.get_chat_history(m.chat.id, limit=5):  
             if reply.reply_to_message and reply.reply_to_message.message_id == response.message_id:
                 for rarity in RARITIES_TO_LOG:
-                    if f"Rarity : {rarity}" in reply.text:
+                    if f"🎯 Look You Collected A {rarity} Player !!" in reply.text:
                         logging.info(f"Logging {rarity} card: {player_name}")
                         await bot.forward_messages(EXCLUSIVE_CARDS_CHANNEL, reply.chat.id, reply.message_id)
-                        break
+                        break  
                 break  
 
     except FloodWait as e:
@@ -146,7 +142,6 @@ async def hacke(c: Client, m: Message):
 
 @bot.on_message(filters.command("fileid") & filters.chat(TARGET_GROUP_ID) & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def extract_file_id(_, message: Message):
-    """Extracts and sends the unique file ID of a replied photo (Restricted to specific users)"""
     if not message.reply_to_message or not message.reply_to_message.photo:
         await message.reply("⚠ Please reply to a photo to extract the file ID.")
         return
@@ -155,7 +150,6 @@ async def extract_file_id(_, message: Message):
     await message.reply(f"📂 **File Unique ID:** `{file_unique_id}`")
 
 async def main():
-    """ Runs Pyrogram bot and Flask server concurrently """
     preload_players()  
     await bot.start()
     logging.info("Bot started successfully!")
