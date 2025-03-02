@@ -99,7 +99,7 @@ async def switch_database(_, message: Message):
         current_db = db_jotaro
         current_db_name = "Jotaro"
     elif new_db_name == "shahzeb":
-        current_db = db_vegeta
+        current_db = db_shahzeb
         current_db_name = "Shahzeb"
     else:
         await message.reply("⚠ Invalid database! Use: `/switchdb shahzeb` or `/switchdb jotaro`")
