@@ -15,15 +15,15 @@ logging.basicConfig(
 )
 
 # Initialize Database
-storage_vegeta = Mukund("Vegeta")
+storage_shahzeb = Mukund("Shahzeb")
 storage_jotaro = Mukund("Jotaro")
 
-db_vegeta = storage_vegeta.database("football")
+db_vegeta = storage_shahzeb.database("football")
 db_jotaro = storage_jotaro.database("premium")
 
 # Track active database
-current_db = db_vegeta  # Default database
-current_db_name = "Vegeta"  # Track the name for response message
+current_db = db_shahzeb  # Default database
+current_db_name = "Shahzeb"  # Track the name for response message
 
 # In-memory cache for quick lookups
 player_cache = {}
@@ -82,7 +82,7 @@ collect_running = False
 
 @bot.on_message(filters.command("switchdb") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7859049019, 7435756663]))
 async def switch_database(_, message: Message):
-    """Switch between Vegeta and Jotaro databases."""
+    """Switch between Shahzeb and Jotaro databases."""
     global current_db, current_db_name, player_cache
 
     new_db_name = message.text.split(maxsplit=1)[1].strip().lower() if len(message.text.split()) > 1 else ""
@@ -90,11 +90,11 @@ async def switch_database(_, message: Message):
     if new_db_name == "jotaro":
         current_db = db_jotaro
         current_db_name = "Jotaro"
-    elif new_db_name == "vegeta":
+    elif new_db_name == "shahzeb":
         current_db = db_vegeta
-        current_db_name = "Vegeta"
+        current_db_name = "Shahzeb"
     else:
-        await message.reply("⚠ Invalid database! Use: `/switchdb vegeta` or `/switchdb jotaro`")
+        await message.reply("⚠ Invalid database! Use: `/switchdb shahzeb` or `/switchdb jotaro`")
         return
 
     preload_players()  # Reload cache with new database
