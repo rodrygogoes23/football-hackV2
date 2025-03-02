@@ -10,7 +10,7 @@ from flask import Flask
 
 # Configure Logging
 logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s",z
+    format="%(asctime)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
 
