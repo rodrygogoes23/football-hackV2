@@ -22,8 +22,8 @@ db_vegeta = storage_vegeta.database("football")
 db_jotaro = storage_jotaro.database("premium")
 
 # Track active database
-current_db = db_vegeta # Default database
-current_db_name = "Vegeta" # Track the name for response message
+current_db = db_vegeta  # Default database
+current_db_name = "Vegeta"  # Track the name for response message
 
 # In-memory cache for quick lookups
 player_cache = {}
@@ -33,7 +33,7 @@ def preload_players():
     global player_cache
     logging.info("Preloading player database into cache...")
     try:
-        all_players = db.all()
+        all_players = current_db.all()  # Use current_db instead of db
         if isinstance(all_players, dict):
             player_cache = all_players
             logging.info(f"Loaded {len(player_cache)} players into cache.")
@@ -59,7 +59,7 @@ async def run_flask():
     await serve(web_app, config)
 
 # Bot Credentials
-API_ID = 17143425  
+API_ID = "17143425"
 API_HASH = "30a4231769abd4308b12b2b36147b6d0"
 SESSION_STRING = "BQEFloEAV3VkCrTzWsqODlCmZHYjAsswfvmE2EsmeFGqP97nwybgCBJzxufta_1mZWJZiYNttNMSIrfP39rQuFNdMMNnNZVIWrNzKhcLKDnw8qja71QuV8y2UE9JVwo3qjnoYUQBfoLiVCmEyzrPho2zg7t_-3vYz4-mjYGoLUssJ_yr1EEqKFw5OFlctNNbl19F_3kxfyasj_ake4kvw3Ay7XOJBewLxghHu__UqODR2HzkxJgVgLohlbNMl9LaNAZW-y5tD_NAkPtaLQ9nH4_RtN12BYwDIXjmab0UgpgQTtIkmPVJSJtkvxZH1eiXHLaFHJyCP0j0M8P95rYnpzd9T7NlRAAAAAGbAPHRAA"
 
@@ -105,7 +105,7 @@ async def start_collect(_, message: Message):
     global collect_running
     if not collect_running:
         collect_running = True
-        await message.reply("✅ Collect function started using '{current_db_name}' database!")
+        await message.reply(f"✅ Collect function started using '{current_db_name}' database!")
     else:
         await message.reply("⚠ Collect function is already running!")
 
@@ -139,7 +139,7 @@ async def collect_celebrity(c: Client, m: Message):
         if file_id in player_cache:
             player_name = player_cache[file_id]['name']
         else:
-            file_data = db.get(file_id)  
+            file_data = current_db.get(file_id)  # Use current_db instead of db
             if file_data:
                 player_name = file_data['name']
                 player_cache[file_id] = file_data  
