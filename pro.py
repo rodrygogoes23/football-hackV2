@@ -15,8 +15,15 @@ logging.basicConfig(
 )
 
 # Initialize Database
-storage = Mukund("Vegeta")
-db = storage.database("football")
+storage_vegeta = Mukund("Vegeta")
+storage_jotaro = Mukund("Jotaro")
+
+db_vegeta = storage_vegeta.database("football")
+db_jotaro = storage_jotaro.databse("premium")
+
+# Track active database
+current_db = db_vegeta # Default database
+current_db_name = "Vegeta" # Track the name for response message
 
 # In-memory cache for quick lookups
 player_cache = {}
@@ -73,12 +80,32 @@ FORWARD_CHANNEL_ID = -1002254491223
 # Control flag for collect function
 collect_running = False
 
+@bot.on_message(filters.command("switchdb") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7859049019, 7435756663]))
+async def switch_database(_, message: Message):
+    """Switch between Vegeta and Jotaro databases."""
+    global current_db, current_db_name, player_cache
+
+    new_db_name = message.text.split(maxsplit=1)[1].strip().lower() if len(message.text.split()) > 1 else ""
+    
+    if new_db_name == "jotaro":
+        current_db = db_jotaro
+        current_db_name = "Jotaro"
+    elif new_db_name == "vegeta":
+        current_db = db_vegeta
+        current_db_name = "Vegeta"
+    else:
+        await message.reply("⚠ Invalid database! Use: `/switchdb vegeta` or `/switchdb jotaro`")
+        return
+
+    preload_players()  # Reload cache with new database
+    await message.reply(f"✅ Switched to **{current_db_name}** database.")
+
 @bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7859049019, 7435756663]))
 async def start_collect(_, message: Message):
     global collect_running
     if not collect_running:
         collect_running = True
-        await message.reply("✅ Collect function started!")
+        await message.reply("✅ Collect function started using '{current_db_name}' database!")
     else:
         await message.reply("⚠ Collect function is already running!")
 
