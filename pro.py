@@ -19,7 +19,7 @@ storage_vegeta = Mukund("Vegeta")
 storage_jotaro = Mukund("Jotaro")
 
 db_vegeta = storage_vegeta.database("football")
-db_jotaro = storage_jotaro.databse("premium")
+db_jotaro = storage_jotaro.database("premium")
 
 # Track active database
 current_db = db_vegeta # Default database
