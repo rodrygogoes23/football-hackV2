@@ -10,23 +10,31 @@ from flask import Flask
 
 # Configure Logging
 logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(levelname)s - %(message)s",z
     level=logging.INFO
 )
 
 # Initialize Database
-storage_shahzeb = Mukund("Shahzeb")
-storage_jotaro = Mukund("Jotaro")
+storage_shahzeb = Mukund("Shahzeb")  # Initialize storage for Shahzeb
+storage_jotaro = Mukund("Jotaro")    # Initialize storage for Jotaro
 
-db_vegeta = storage_shahzeb.database("football")
-db_jotaro = storage_jotaro.database("premium")
+# Initialize databases for both
+db_shahzeb = storage_shahzeb.database("football")  # Initialize the database for football
+db_jotaro = storage_jotaro.database("premium")      # Initialize the database for premium
 
-# Track active database
+# Track active database (use db_shahzeb as default database)
 current_db = db_shahzeb  # Default database
 current_db_name = "Shahzeb"  # Track the name for response message
 
 # In-memory cache for quick lookups
 player_cache = {}
+
+# Ensure that the database is properly initialized before usage
+if db_shahzeb is None or db_jotaro is None:
+    logging.error("Database initialization failed! Please check the Mukund database configuration.")
+else:
+    logging.info("Databases initialized successfully.")
+
 
 # Preload players from the database at startup
 def preload_players():
